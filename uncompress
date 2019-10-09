@@ -6,7 +6,7 @@ sudo apt-get install -y wget lbzip2
 #time wget https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
 
 echo downloading...
-time gsutil cp gs://mco-wiki/compressed/latest-all.json.bz2
+time gsutil cp gs://mco-wiki/compressed/latest-all.json.bz2 .
 
 echo uncompressing...
 time lbunzip2 latest-all.json.bz2
