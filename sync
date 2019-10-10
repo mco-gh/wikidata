@@ -1,2 +1,8 @@
-time wget -m -A "*.gz" -I other/pageviews -nH --cut-dirs=1 https://dumps.wikimedia.org/other/pageviews/ 
-# gsutil -m rsync -d -r -n pageviews gs://mco-wiki/pageviews
+#!/bin/bash
+
+UPATH=other/pageviews
+URL=https://dumps.wikimedia.org/$UPATH
+
+wget -nv --spider -S -r -A ".gz" -I $UPATH $URL 2>&1 |
+  awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+       $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}'
