@@ -1,7 +1,9 @@
 #!/bin/bash
 
-#BUCKET=bigquery-public-data-staging
+PROJECT=mco-wiki
+#PROJECT=bigquery-public-data-staging
 BUCKET=mco-wiki
+#BUCKET=wikidata
 SRC_BASE=https://dumps.wikimedia.org
 DST_BASE=gs://$BUCKET
 SRC_DATA_PATH=wikidatawiki/entities/latest-all.json.bz
@@ -15,6 +17,8 @@ DST_DATA_URL=$DST_BASE/$DST_DATA_PATH
 SRC_VIEW_URL=$SRC_BASE/$SRC_VIEW_PATH
 DST_VIEW_URL=$DST_BASE/$DST_VIEW_PATH
 FILE_LIST_URL=gs://$BUCKET/$FILE_LIST
+
+gcloud config set project $PROJECT
 
 echo "TsvHttpData-1.0" >$FILE_LIST
 
