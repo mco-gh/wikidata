@@ -5,10 +5,10 @@ BUCKET=mco-wiki
 SRC_BASE=https://dumps.wikimedia.org
 DST_BASE=gs://$BUCKET
 SRC_DATA_PATH=wikidatawiki/entities/latest-all.json.bz
-DST_DATA_PATH=latest-all.json.bz
+DST_DATA_PATH=wikidata/latest-all.json.bz
 SRC_VIEW_PATH=other/pageviews
 DST_VIEW_PATH=pageviews
-FILE_LIST=file-list.csv
+FILE_LIST=file-list.tsv
 
 SRC_DATA_URL=$SRC_BASE/$SRC_DATA_PATH
 DST_DATA_URL=$DST_BASE/$DST_DATA_PATH
@@ -16,7 +16,7 @@ SRC_VIEW_URL=$SRC_BASE/$SRC_VIEW_PATH
 DST_VIEW_URL=$DST_BASE/$DST_VIEW_PATH
 FILE_LIST_URL=gs://$BUCKET/$FILE_LIST
 
->$FILE_LIST
+echo "TsvHttpData-1.0" >$FILE_LIST
 
 # if today is Sunday, arrange to get compressed wikidata file.
 if [[ $(date +%u) -eq 0 ]]
@@ -25,13 +25,13 @@ then
 fi
 
 # for every pageview log found, arrange to get new/modified files.
-#wget -nv --spider -S -r -A ".gz" -I $UPATH $URL 2>&1 |
+#wget -nv --spider -S -r -A ".gz" -I $SRC_VIEW_PATH $SRC_VIEW_URL 2>&1 |
   #awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
        #$1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' >out
 
 while read FILE SIZE
 do
-  gsutil ls gs://
+  gsutil ls $DST_VIEW_URL/$FILE
   if not-exist or $SIZE != $size
   then
     echo $SRC_VIEW_URL/$FILE >>file-list
