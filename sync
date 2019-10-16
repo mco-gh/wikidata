@@ -9,7 +9,7 @@ DST_BASE=gs://$BUCKET
 SRC_DATA_PATH=wikidatawiki/entities/latest-all.json.bz
 DST_DATA_PATH=wikidata/latest-all.json.bz
 SRC_VIEW_PATH=other/pageviews
-DST_VIEW_PATH=pageviews
+DST_VIEW_PATH=dumps.wikimedia.org/other/pageviews
 FILE_LIST=file-list.tsv
 
 SRC_DATA_URL=$SRC_BASE/$SRC_DATA_PATH
@@ -28,18 +28,22 @@ then
     echo $SRC_DATA_URL >>$FILE_LIST
 fi
 
-# for every pageview log found, arrange to get new/modified files.
-#wget -nv --spider -S -r -A ".gz" -I $SRC_VIEW_PATH $SRC_VIEW_URL 2>&1 |
-  #awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
-       #$1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' >out
+# Assemble list of every pageview log file and size on website.
+wget -nv --spider -S -r -A ".gz" -I $SRC_VIEW_PATH $SRC_VIEW_URL 2>&1 |
+  awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+       $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' |
+  sort >src-files.txt
 
+# Assemble list of every pageview log file and size in cloud storage.
+gsutil ls -l $DST_VIEW_URL/*/* |
+  awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+       $1 != "TOTAL:" {print base($3), $1}' | sort >dst-files.txt
+
+# One-sided diff - every file that doesn't exist or match size in cloud storage.
+comm -23 src-files.txt dst-files.txt |
 while read FILE SIZE
 do
-  gsutil ls $DST_VIEW_URL/$FILE
-  if not-exist or $SIZE != $size
-  then
-    echo $SRC_VIEW_URL/$FILE >>file-list
-  fi
-done <out
+  echo $SRC_VIEW_URL/$FILE >>$FILE_LIST
+done
 
 gsutil cp $FILE_LIST $FILE_LIST_URL
