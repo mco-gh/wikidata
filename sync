@@ -31,8 +31,9 @@ fi
 # Assemble list of every pageview log file and size on website.
 wget -nv --spider -S -r -A ".gz" -I $SRC_VIEW_PATH $SRC_VIEW_URL 2>&1 |
   awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
-       $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' |
-  sort >src-files.txt
+       $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' >src-files
+
+sort src-files >src-files.txt
 
 # Assemble list of every pageview log file and size in cloud storage.
 gsutil ls -l $DST_VIEW_URL/*/* |
