@@ -2,12 +2,13 @@
 
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
-SRC_BASE=https://dumps.wikimedia.org
+DOMAIN=dumps.wikimedia.org
+SRC_BASE=https://$DOMAIN
 DST_BASE=gs://$BUCKET
-SRC_DATA_PATH=wikidatawiki/entities/latest-all.json.bz
-DST_DATA_PATH=wikidata/latest-all.json.bz
+SRC_DATA_PATH=wikidatawiki/entities/latest-all.json.bz2
+DST_DATA_PATH=$DOMAIN/$SRC_DATA_PATH
 SRC_VIEW_PATH=other/pageviews
-DST_VIEW_PATH=dumps.wikimedia.org/other/pageviews
+DST_VIEW_PATH=$DOMAIN/$SRC_VIEW_PATH
 FILE_LIST=file-list.tsv
 
 SRC_DATA_URL=$SRC_BASE/$SRC_DATA_PATH
@@ -23,7 +24,19 @@ echo "TsvHttpData-1.0" >$FILE_LIST
 # if today is Sunday, arrange to get compressed wikidata file.
 if [[ $(date +%u) -eq 7 ]]
 then
+  export SFILE SSIZE DFILE DSIZE
+  read SFILE SSIZE \
+    <<<$(wget -nv --spider -S -r -A ".gz" -I $SRC_DATA_PATH $SRC_DATA_URL 2>&1 |
+         awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+              $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}')
+  read DFILE DSIZE \
+    <<<$(gsutil ls -l $DST_DATA_URL |
+         awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+              $1 != "TOTAL:" {print base($3), $1}')
+  if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]
+  then
     echo $SRC_DATA_URL >>$FILE_LIST
+  fi
 fi
 
 # Assemble list of every pageview log file and size on website.
