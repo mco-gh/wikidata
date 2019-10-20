@@ -1,9 +1,7 @@
 #!/bin/bash
 
-PROJECT=mco-wiki
-#PROJECT=bigquery-public-data-staging
-BUCKET=mco-wiki
-#BUCKET=wikidata
+PROJECT=bigquery-public-data-staging
+BUCKET=wiki-staging
 SRC_BASE=https://dumps.wikimedia.org
 DST_BASE=gs://$BUCKET
 SRC_DATA_PATH=wikidatawiki/entities/latest-all.json.bz
@@ -23,7 +21,7 @@ gcloud config set project $PROJECT
 echo "TsvHttpData-1.0" >$FILE_LIST
 
 # if today is Sunday, arrange to get compressed wikidata file.
-if [[ $(date +%u) -eq 0 ]]
+if [[ $(date +%u) -eq 7 ]]
 then
     echo $SRC_DATA_URL >>$FILE_LIST
 fi
@@ -44,7 +42,9 @@ gsutil ls -l $DST_VIEW_URL/*/* |
 comm -23 src-files.txt dst-files.txt |
 while read FILE SIZE
 do
-  echo $SRC_VIEW_URL/$FILE >>$FILE_LIST
+  DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
+  echo $SRC_VIEW_URL/$DIR/$FILE >>$FILE_LIST
 done
 
 gsutil cp $FILE_LIST $FILE_LIST_URL
+gsutil acl set -r public-read $FILE_LIST_URL
