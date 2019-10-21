@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eEuo pipefail
+
+PROJECT_ID=bigquery-public-data-staging
+
+gcloud builds submit \
+  --project "${PROJECT_ID}" \
+  --tag "gcr.io/${PROJECT_ID}/wikisync" \
+  .
+
+gcloud beta run deploy "wikisync" \
+  --image "gcr.io/${PROJECT_ID}/wikisync" \
+  --platform "managed" \
+  --region "us-central1" \
+  --project "${PROJECT_ID}" \
+  --concurrency 1 \
+  --allow-unauthenticated

@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -eEuo pipefail
+
+USAGE="$0 all|year|month"
+WINDOW=$1
+SUFFIX=
+
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
 DOMAIN=dumps.wikimedia.org
@@ -17,6 +23,18 @@ SRC_VIEW_URL=$SRC_BASE/$SRC_VIEW_PATH
 DST_VIEW_URL=$DST_BASE/$DST_VIEW_PATH
 FILE_LIST_URL=gs://$BUCKET/$FILE_LIST
 
+YESTERDAY=$(($(date '+%s') - 86400))
+YYYY=$(date -r $YESTERDAY +%Y)
+MM=$(date -r $YESTERDAY +%m)
+DD=$(date -r $YESTERDAY +%d)
+if   [ "$WINDOW" = "all" ];   then SUFFIX=
+elif [ "$WINDOW" = "year" ];  then SUFFIX=/$YYYY
+elif [ "$WINDOW" = "month" ]; then SUFFIX=/$YYYY/$YYYY-$MM
+else
+  echo $USAGE
+  exit 1
+fi
+
 gcloud config set project $PROJECT
 
 echo "TsvHttpData-1.0" >$FILE_LIST
@@ -30,7 +48,7 @@ then
          awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
               $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}')
   read DFILE DSIZE \
-    <<<$(gsutil ls -l $DST_DATA_URL |
+    <<<$(gsutil ls -l -r $DST_DATA_URL |
          awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
               $1 != "TOTAL:" {print base($3), $1}')
   if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]
@@ -40,14 +58,14 @@ then
 fi
 
 # Assemble list of every pageview log file and size on website.
-wget -nv --spider -S -r -A ".gz" -I $SRC_VIEW_PATH $SRC_VIEW_URL 2>&1 |
+wget -nv --spider -S -r -A ".gz" -I $SRC_VIEW_PATH$SUFFIX $SRC_VIEW_URL$SUFFIX 2>&1 |
   awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
        $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' >src-files
 
 sort src-files >src-files.txt
 
 # Assemble list of every pageview log file and size in cloud storage.
-gsutil ls -l $DST_VIEW_URL/*/* |
+gsutil ls -l -r $DST_VIEW_URL$SUFFIX | grep -v ":$" |
   awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
        $1 != "TOTAL:" {print base($3), $1}' | sort >dst-files.txt
 
