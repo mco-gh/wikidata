@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eEuo pipefail
+
+PROJECT_ID=bigquery-public-data-staging
+
+gcloud builds submit \
+  --project "${PROJECT_ID}" \
+  --tag "gcr.io/${PROJECT_ID}/wikisync" \
+  .
