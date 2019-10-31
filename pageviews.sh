@@ -16,6 +16,12 @@
 
 set -eEuo pipefail
 
+if [ -z ${K_SERVICE+x} ]
+then
+  EOL="\n"
+else
+  EOL="<br>"
+fi
 USAGE="$0 [all|year|month|day]"
 WINDOW="${1:-day}"
 PROJECT=bigquery-public-data-staging
@@ -49,8 +55,11 @@ elif [ "$WINDOW" = "month" ]; then S1=/$YYYY/$YYYY-$MM; S2=
 elif [ "$WINDOW" = "day" ];   then S1=/$YYYY/$YYYY-$MM; S2=pageviews-$YYYY$MM$DD-*.gz
 fi
 
-echo -en "$HEAD" 
-echo -en "TsvHttpData-1.0<br>"
+if [ ! -z ${K_SERVICE+x} ]
+then
+  echo -en "$HEAD" 
+  echo -en "TsvHttpData-1.0$EOL"
+fi
 
 # Assemble list of every pageview log file and size on website.
 wget --no-parent -nv --spider -S -r -A "$S2" $SRC_VIEW_URL/$S1/ 2>&1 |
@@ -72,5 +81,5 @@ comm -23 src-files.txt dst-files.txt |
 while read FILE SIZE
 do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
-  echo -en "$SRC_VIEW_URL/$DIR/$FILE<br>"
+  echo -en "$SRC_VIEW_URL/$DIR/$FILE$EOL"
 done
