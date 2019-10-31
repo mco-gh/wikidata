@@ -45,13 +45,13 @@ Connection: keep-alive\r\n\r\n
 EOF
 )"
 
-YESTERDAY=$(date '+%s')
+YESTERDAY=$(($(date '+%s') - 86400))
 YYYY=$(date --date=@$YESTERDAY +%Y)
 MM=$(date --date=@$YESTERDAY +%m)
 DD=$(date --date=@$YESTERDAY +%d)
-if   [ "$WINDOW" = "all" ];   then S1=/;                S2=
-elif [ "$WINDOW" = "year" ];  then S1=/$YYYY;           S2=
-elif [ "$WINDOW" = "month" ]; then S1=/$YYYY/$YYYY-$MM; S2=
+if   [ "$WINDOW" = "all" ];   then S1=/;                S2=pageviews-*.gz
+elif [ "$WINDOW" = "year" ];  then S1=/$YYYY;           S2=pageviews-*.gz
+elif [ "$WINDOW" = "month" ]; then S1=/$YYYY/$YYYY-$MM; S2=pageviews-*.gz
 elif [ "$WINDOW" = "day" ];   then S1=/$YYYY/$YYYY-$MM; S2=pageviews-$YYYY$MM$DD-*.gz
 fi
 
@@ -69,7 +69,7 @@ wget --no-parent -nv --spider -S -r -A "$S2" $SRC_VIEW_URL/$S1/ 2>&1 |
 
 # Assemble list of every pageview log file and size in cloud storage.
 >dst-files.txt
-if gsutil -q stat $DST_VIEW_URL$S1/$S2/* >/dev/null 2>&1
+if gsutil -q stat $DST_VIEW_URL$S1/$S2 >/dev/null 2>&1
 then
   gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1/$S2 2>/dev/null | grep -v ":$" |
     awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
