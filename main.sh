@@ -14,13 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eEuo pipefail
-set -x
+set -eEuox pipefail
 
 PORT="${PORT:-8080}"
 echo "Listening on ${PORT}..."
 
-while true
-do
-  nc -l -p "${PORT}" -e "./pageviews.sh"
-done
+nc -lk -p "${PORT}" -e "./pageviews.sh"

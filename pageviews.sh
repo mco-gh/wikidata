@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eEuo pipefail
+set -eEuox pipefail
 
 USAGE="$0 all|year|month|day"
-PORT="${PORT:-8080}"
 WINDOW="${1:-day}"
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
@@ -40,17 +39,13 @@ Connection: keep-alive\r\n\r\n
 EOF
 )"
 
-#gcloud config set project $PROJECT
-#gcloud config list
-
 YESTERDAY=$(date '+%s')
 YYYY=$(date --date=@$YESTERDAY +%Y)
 MM=$(date --date=@$YESTERDAY +%m)
 DD=$(date --date=@$YESTERDAY +%d)
-S1=
-S2=
-if   [ "$WINDOW" = "year" ];  then S1=/$YYYY
-elif [ "$WINDOW" = "month" ]; then S1=/$YYYY/$YYYY-$MM
+if   [ "$WINDOW" = "all" ];   then S1=/;                S2=
+elif [ "$WINDOW" = "year" ];  then S1=/$YYYY;           S2=
+elif [ "$WINDOW" = "month" ]; then S1=/$YYYY/$YYYY-$MM; S2=
 elif [ "$WINDOW" = "day" ];   then S1=/$YYYY/$YYYY-$MM; S2=pageviews-$YYYY$MM$DD-*.gz
 fi
 
@@ -61,19 +56,21 @@ echo -en "TsvHttpData-1.0\r\n"
 wget --no-parent -nv --spider -S -r -A "$S2" $SRC_VIEW_URL/$S1/ 2>&1 |
   awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
        $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' |
-  sort #>src-files.txt
-
-exit
+  sort >src-files.txt
 
 # Assemble list of every pageview log file and size in cloud storage.
-gsutil ls -l -r $DST_VIEW_URL$S1/$S2 2>/dev/null | grep -v ":$" |
-  awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
-       $1 != "TOTAL:" {print base($3), $1}' | sort >dst-files.txt
+>dst-files.txt
+if gsutil -q stat $DST_VIEW_URL$S1/$S2/* >/dev/null 2>&1
+then
+  gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1/$S2 2>/dev/null | grep -v ":$" |
+    awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+         $1 != "TOTAL:" {print base($3), $1}' | sort >dst-files.txt
+fi
 
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
 comm -23 src-files.txt dst-files.txt |
 while read FILE SIZE
 do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
-  echo $SRC_VIEW_URL/$DIR/$FILE
+  echo -en "$SRC_VIEW_URL/$DIR/$FILE\r\n"
 done

@@ -1,0 +1,2 @@
+docker pull gcr.io/bigquery-public-data-staging/wikisync
+docker run -it -p 8080:8080 --entrypoint /usr/local/bin/bash gcr.io/bigquery-public-data-staging/wikisync
