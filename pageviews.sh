@@ -16,7 +16,7 @@
 
 set -eEuo pipefail
 
-USAGE="$0 all|year|month|day"
+USAGE="$0 [all|year|month|day]"
 WINDOW="${1:-day}"
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
