@@ -47,10 +47,13 @@ EOF
 
 
 TODAY=$(date '+%s')
+YYYY=$(date --date=@$TODAY +%Y)
+MM=$(date --date=@$TODAY +%m)
+DD=$(date --date=@$TODAY +%d)
 YESTERDAY=$(($TODAY - 86400))
-YYYY=$(date --date=@$YESTERDAY +%Y)
-MM=$(date --date=@$YESTERDAY +%m)
-DD=$(date --date=@$YESTERDAY +%d)
+Y_YYYY=$(date --date=@$YESTERDAY +%Y)
+Y_MM=$(date --date=@$YESTERDAY +%m)
+Y_DD=$(date --date=@$YESTERDAY +%d)
 
 if [ "$WINDOW" = "all" ]
 then
@@ -63,7 +66,7 @@ then
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM*.gz
 elif [ "$WINDOW" = "day" ]
 then 
-  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
+  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$Y_DD-*.gz; S4=pageviews-$YYYY$MM$DD-*.gz
 fi
 
 if [ ! -z ${K_SERVICE+x} ]
@@ -72,15 +75,19 @@ then
   echo -en "TsvHttpData-1.0$EOL"
 fi
 
-echo wget --no-parent -nv --spider -S -r -A "$S3" $SRC_VIEW_URL$S1
-echo gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1$S2$S3
-exit
-
 # Assemble list of every pageview log file and size on website.
+>src-files.txt
 wget --no-parent -nv --spider -S -r -A "$S3" $SRC_VIEW_URL$S1 2>&1 |
   awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
        $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' |
-  sort >src-files.txt
+  sort >>src-files.txt
+if [ "$WINDOW" = "day" ]
+then
+  wget --no-parent -nv --spider -S -r -A "$S4" $SRC_VIEW_URL$S1 2>&1 |
+    awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+         $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' |
+    sort >>src-files.txt
+fi
 
 # Assemble list of every pageview log file and size in cloud storage.
 >dst-files.txt
@@ -88,7 +95,13 @@ if gsutil -q stat $DST_VIEW_URL$S1$S2$S3 >/dev/null 2>&1
 then
   gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1$S2$S3 2>/dev/null | grep -v ":$" |
     awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
-         $1 != "TOTAL:" {print base($3), $1}' | sort >dst-files.txt
+         $1 != "TOTAL:" {print base($3), $1}' | sort >>dst-files.txt
+  if [ "$WINDOW" = "day" ]
+  then
+    gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1$S2$S4 2>/dev/null | grep -v ":$" |
+      awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+           $1 != "TOTAL:" {print base($3), $1}' | sort >>dst-files.txt
+  fi
 fi
 
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
