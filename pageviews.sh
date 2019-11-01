@@ -66,7 +66,7 @@ then
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM*.gz
 elif [ "$WINDOW" = "day" ]
 then 
-  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$Y_DD-*.gz; S4=pageviews-$YYYY$MM$DD-*.gz
+  S1=/$YYYY/$YYYY-$Y_MM/; S2=; S3=pageviews-$YYYY$Y_MM$Y_DD-*.gz; S4=/$YYYY/$YYYY-$MM/; S5=pageviews-$YYYY$MM$DD-*.gz
 fi
 
 if [ ! -z ${K_SERVICE+x} ]
@@ -83,7 +83,7 @@ wget --no-parent -nv --spider -S -r -A "$S3" $SRC_VIEW_URL$S1 2>&1 |
   sort >>src-files.txt
 if [ "$WINDOW" = "day" ]
 then
-  wget --no-parent -nv --spider -S -r -A "$S4" $SRC_VIEW_URL$S1 2>&1 |
+  wget --no-parent -nv --spider -S -r -A "$S5" $SRC_VIEW_URL$S4 2>&1 |
     awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
          $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}' |
     sort >>src-files.txt
