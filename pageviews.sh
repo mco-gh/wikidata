@@ -20,7 +20,7 @@ if [ -z ${K_SERVICE+x} ]
 then
   EOL="\n"
 else
-  EOL="<br>"
+  EOL="\r\n"
 fi
 USAGE="$0 [all|year|month|day]"
 WINDOW="${1:-day}"
@@ -80,9 +80,12 @@ sort >>src-files.txt
 
 # Assemble list of every pageview log file and size in cloud storage.
 >dst-files.txt
-gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1$S2$S3 2>/dev/null | grep -v ":$" |
-awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
-     $1 != "TOTAL:" {print base($3), $1}' | sort >>dst-files.txt
+if gsutil -o 'Boto:https_validate_certificates=False' stat $DST_VIEW_URL$S1$S2$S3 >/dev/null 2>&1
+then
+  gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1$S2$S3 2>/dev/null | grep -v ":$" |
+  awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
+       $1 != "TOTAL:" {print base($3), $1}' | sort >>dst-files.txt
+fi
 
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
 comm -23 src-files.txt dst-files.txt |
