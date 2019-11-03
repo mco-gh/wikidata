@@ -1,18 +1,23 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
 
+SERVICES="pageviews entities"
 PROJECT_ID=bigquery-public-data-staging
+IMAGE=wikisync
 
 gcloud builds submit \
   --project "${PROJECT_ID}" \
-  --tag "gcr.io/${PROJECT_ID}/wikisync" \
+  --tag "gcr.io/$PROJECT_ID/$IMAGE" \
   .
 
-gcloud beta run deploy "wikisync" \
-  --image "gcr.io/${PROJECT_ID}/wikisync" \
-  --platform "managed" \
-  --region "us-central1" \
-  --project "${PROJECT_ID}" \
-  --concurrency 1 \
-  --memory 1G \
-  --allow-unauthenticated
+for SERVICE in $SERVICES
+do
+  gcloud beta run deploy "$SERVICE" \
+    --image "gcr.io/$PROJECT_ID/$IMAGE" \
+    --platform "managed" \
+    --region "us-central1" \
+    --project "${PROJECT_ID}" \
+    --concurrency 1 \
+    --memory 1G \
+    --allow-unauthenticated
+done

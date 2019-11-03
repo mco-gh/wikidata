@@ -19,4 +19,6 @@ set -eEuox pipefail
 PORT="${PORT:-8080}"
 echo "Listening on ${PORT}..."
 
-nc -lk -p "${PORT}" -e "./pageviews.sh"
+SERVICE="${K_SERVICE:-pageviews}"
+
+nc -lk -p "${PORT}" -e "./$SERVICE.sh"

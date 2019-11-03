@@ -94,3 +94,5 @@ do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
   echo -en "$SRC_VIEW_URL/$DIR/$FILE$EOL"
 done
+
+rm src-files.txt dst-files.txt
