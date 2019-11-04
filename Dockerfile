@@ -17,6 +17,7 @@ COPY main.sh .
 COPY pageviews.sh .
 COPY entities.sh .
 COPY wikiload.sh .
+COPY startup.sh .
 ARG CLOUD_SDK_VERSION=160.0.0
 ENV PATH /google-cloud-sdk/bin:$PATH
 RUN apk --no-cache add curl wget python py-crcmod bash libc6-compat && \
