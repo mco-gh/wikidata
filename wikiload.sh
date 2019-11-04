@@ -41,7 +41,6 @@ fi
 # MAKE THIS VM PREEMPTIBLE!
 # and generalize startup script
 echo "creating VM...$EOL"
-gcloud compute instances create $VMNAME \
 
 gcloud beta compute instances create $VMNAME \
   --zone=$ZONE \
@@ -50,7 +49,6 @@ gcloud beta compute instances create $VMNAME \
   --network-tier=PREMIUM \
   --no-restart-on-failure \
   --maintenance-policy=TERMINATE \
-  --preemptible \
   --scopes=https://www.googleapis.com/auth/cloud-platform \
   --image=debian-9-drawfork-v20191004 \
   --image-project=eip-images \
@@ -59,4 +57,6 @@ gcloud beta compute instances create $VMNAME \
   --boot-disk-device-name=wikiload \
   --reservation-affinity=any \
   --metadata-from-file startup-script=startup.sh
+  #--preemptible
+
 echo "DONE.$EOL"
