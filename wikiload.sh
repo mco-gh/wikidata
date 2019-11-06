@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eEuo pipefail
+set -eEuox pipefail
 
 if [ -z ${K_SERVICE+x} ]
 then

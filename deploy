@@ -21,3 +21,5 @@ do
     --memory 1G \
     --allow-unauthenticated
 done
+
+gcloud functions deploy handle_new_entity_data --runtime python37 --trigger-resource gs://wiki-staging --trigger-event google.storage.object.finalize
