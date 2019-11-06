@@ -25,7 +25,7 @@ fi
 
 VMNAME=wikiload
 ZONE=us-central1-c
-SCOPES="https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/servicecontrol,https://www.googleapis.com/auth/service.management.readonly,https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring.write,https://www.googleapis.com/auth/trace.append,https://www.googleapis.com/auth/devstorage.read_only"
+SCOPES="https://www.googleapis.com/auth/cloud-platform"
 
 HEAD="$(cat <<EOF
 HTTP/1.1 200 OK
@@ -38,9 +38,11 @@ then
   echo -en "$HEAD" 
 fi
 
-# MAKE THIS VM PREEMPTIBLE!
-# and generalize startup script
 echo "creating VM...$EOL"
+
+gcloud auth activate-service-account --key-file=key.json
+gcloud config set project bigquery-public-data-staging
+gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 
 gcloud beta compute instances create $VMNAME \
   --zone=$ZONE \
@@ -49,9 +51,9 @@ gcloud beta compute instances create $VMNAME \
   --network-tier=PREMIUM \
   --no-restart-on-failure \
   --maintenance-policy=TERMINATE \
-  --scopes=https://www.googleapis.com/auth/cloud-platform \
-  --image=debian-9-drawfork-v20191004 \
-  --image-project=eip-images \
+  --scopes=$SCOPES \
+  --image=debian-10-buster-v20191014 \
+  --image-project=debian-cloud \
   --boot-disk-size=1000GB \
   --boot-disk-type=pd-ssd \
   --boot-disk-device-name=wikiload \

@@ -26,5 +26,5 @@ RUN apk --no-cache add curl wget python py-crcmod bash libc6-compat && \
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     ln -s /lib /lib64 && \
-    gcloud auth activate-service-account --key-file=key.json
+    gcloud components install beta -q
 ENTRYPOINT ["./main.sh"]
