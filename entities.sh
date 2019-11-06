@@ -49,7 +49,7 @@ read SFILE SSIZE \
        awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
             $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}')
 read DFILE DSIZE \
-  <<<$(gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_DATA_URL |
+  <<<$(gsutil ls -l -r $DST_DATA_URL |
        awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
             $1 != "TOTAL:" {print base($3), $1}')
 if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]

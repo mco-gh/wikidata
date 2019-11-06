@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eEuox pipefail
+set -eEuo pipefail
 
 if [ -z ${K_SERVICE+x} ]
 then
@@ -73,9 +73,10 @@ awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
 sort >src-files.txt
 
 # Assemble list of every pageview log file and size in cloud storage.
-if gsutil -o 'Boto:https_validate_certificates=False' stat $DST_VIEW_URL$S1$S2$S3 >/dev/null 2>&1
+>dst-files.txt
+if gsutil stat $DST_VIEW_URL$S1$S2$S3 >/dev/null 2>&1
 then
-  gsutil -o 'Boto:https_validate_certificates=False' ls -l -r $DST_VIEW_URL$S1$S2$S3 2>/dev/null | grep -v ":$" |
+  gsutil ls -l -r $DST_VIEW_URL$S1$S2$S3 2>/dev/null | grep -v ":$" |
   awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
        $1 != "TOTAL:" {print base($3), $1}' |
   sort >dst-files.txt
