@@ -13,7 +13,7 @@ extconfig.options.allow_jagged_rows = False
 extconfig.options.allow_quoted_newlines = False
 extconfig.max_bad_records = 10000000
 extconfig.source_uris=[
-  "gs://wiki-staging/dumps.wikimedia.org/other/pageviews/2019/2019-11/pageviews-*.gz"
+  "gs://wiki-staging/wikipedia-pagecounts/pageviews-*.gz"
 ]
 table.external_data_configuration = extconfig
 bq_client.create_table(table)
