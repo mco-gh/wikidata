@@ -97,3 +97,4 @@ do
 done
 
 rm src-files.txt dst-files.txt
+echo "DONE.$EOL"
