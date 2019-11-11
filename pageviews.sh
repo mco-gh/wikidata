@@ -91,7 +91,7 @@ while read FILE SIZE
 do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
   echo -en "$SRC_VIEW_URL/$DIR/$FILE$EOL"
-  wget $SRC_VIEW_URL/$DIR/$FILE
+  wget -q $SRC_VIEW_URL/$DIR/$FILE
   gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
   rm $FILE
 done
