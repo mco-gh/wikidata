@@ -40,7 +40,6 @@ Connection: keep-alive\r\n\r\n
 EOF
 )"
 
-
 TODAY=$(date '+%s')
 YYYY=$(date --date=@$TODAY +%Y)
 MM=$(date --date=@$TODAY +%m)
@@ -82,12 +81,20 @@ then
   sort >dst-files.txt
 fi
 
+# Setup auth for gsutil uploads.
+gcloud auth activate-service-account --key-file=key.json
+gcloud config set project $PROJECT
+gcloud config set account 598876566128-compute@developer.gserviceaccount.com
+
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
 comm -23 src-files.txt dst-files.txt |
 while read FILE SIZE
 do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
   echo -en "$SRC_VIEW_URL/$DIR/$FILE$EOL"
+  wget $SRC_VIEW_URL/$DIR/$FILE
+  gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
+  rm $FILE
 done
 
 rm src-files.txt dst-files.txt

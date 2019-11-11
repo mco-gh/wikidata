@@ -24,6 +24,7 @@ else
 fi
 
 VMNAME=wikiload
+PROJECT=bigquery-public-data-staging
 ZONE=us-central1-c
 SCOPES="https://www.googleapis.com/auth/cloud-platform"
 
@@ -41,7 +42,7 @@ fi
 echo "creating VM...$EOL"
 
 gcloud auth activate-service-account --key-file=key.json
-gcloud config set project bigquery-public-data-staging
+gcloud config set project $PROJECT
 gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 
 gcloud beta compute instances create $VMNAME \
