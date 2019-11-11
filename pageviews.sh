@@ -63,7 +63,6 @@ if [ ! -z ${K_SERVICE+x} ]
 then
   echo -en "$HEAD" 
 fi
-echo -en "TsvHttpData-1.0$EOL"
 
 # Assemble list of every pageview log file and size on website.
 wget --no-parent -nv --spider -S -r -A "$S3" $SRC_VIEW_URL$S1 2>&1 |
