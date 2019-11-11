@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
 
-SERVICES="pageviews entities wikiload"
+SERVICES="pageviews entities"
 PROJECT_ID=bigquery-public-data-staging
 IMAGE=wikisync
 
@@ -21,5 +21,3 @@ do
     --memory 1G \
     --allow-unauthenticated
 done
-
-gcloud functions deploy handle_new_entity_data --runtime python37 --trigger-resource gs://wiki-staging --trigger-event google.storage.object.finalize

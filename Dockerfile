@@ -16,7 +16,6 @@ FROM google/cloud-sdk:alpine
 COPY main.sh .
 COPY pageviews.sh .
 COPY entities.sh .
-COPY wikiload.sh .
 COPY startup.sh .
 COPY key.json .
 ARG CLOUD_SDK_VERSION=270.0.0
