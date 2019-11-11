@@ -16,12 +16,6 @@
 
 set -eEuo pipefail
 
-if [ -z ${K_SERVICE+x} ]
-then
-  EOL="\n"
-else
-  EOL="\r\n"
-fi
 USAGE="$0 [all|year|month|day]"
 WINDOW="${1:-day}"
 PROJECT=bigquery-public-data-staging
@@ -59,10 +53,16 @@ then
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
 fi
 
-if [ ! -z ${K_SERVICE+x} ]
+if [ -z ${K_SERVICE+x} ]
 then
+  EOL="\n"
+else
+  EOL="\r\n"
   echo -en "$HEAD" 
+  gcloud auth activate-service-account --key-file=key.json
+  gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 fi
+gcloud config set project $PROJECT
 
 # Assemble list of every pageview log file and size on website.
 wget --no-parent -nv --spider -S -r -A "$S3" $SRC_VIEW_URL$S1 2>&1 |
@@ -79,11 +79,6 @@ then
        $1 != "TOTAL:" {print base($3), $1}' |
   sort >dst-files.txt
 fi
-
-# Setup auth for gsutil uploads.
-gcloud auth activate-service-account --key-file=key.json
-gcloud config set project $PROJECT
-gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
 comm -23 src-files.txt dst-files.txt |

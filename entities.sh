@@ -16,13 +16,10 @@
 
 set -eEuo pipefail
 
-if [ -z ${K_SERVICE+x} ]
-then
-  EOL="\n"
-else
-  EOL="\r\n"
-fi
-
+VMNAME=wikiload
+PROJECT=bigquery-public-data-staging
+ZONE=us-central1-c
+SCOPES="https://www.googleapis.com/auth/cloud-platform"
 BUCKET=wiki-staging
 DOMAIN=dumps.wikimedia.org
 SRC_BASE=https://$DOMAIN
@@ -32,21 +29,22 @@ DST_DATA_PATH=$DOMAIN/$SRC_DATA_PATH
 SRC_DATA_URL=$SRC_BASE/$SRC_DATA_PATH
 DST_DATA_URL=$DST_BASE/$DST_DATA_PATH
 
-VMNAME=wikiload
-PROJECT=bigquery-public-data-staging
-ZONE=us-central1-c
-SCOPES="https://www.googleapis.com/auth/cloud-platform"
-
 HEAD="$(cat <<EOF
 HTTP/1.1 200 OK
 Connection: keep-alive\r\n\r\n
 EOF
 )"
 
-if [ ! -z ${K_SERVICE+x} ]
+if [ -z ${K_SERVICE+x} ]
 then
+  EOL="\n"
+else
+  EOL="\r\n"
   echo -en "$HEAD" 
+  gcloud auth activate-service-account --key-file=key.json
+  gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 fi
+gcloud config set project $PROJECT
 
 read SFILE SSIZE \
   <<<$(wget -nv --spider -S -r -A ".gz" -I $SRC_DATA_PATH $SRC_DATA_URL 2>&1 |
@@ -61,10 +59,6 @@ read DFILE DSIZE \
 if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]
 then
   echo "creating VM to migrate $SRC_DATA_URL...$EOL"
-
-  gcloud auth activate-service-account --key-file=key.json
-  gcloud config set project $PROJECT
-  gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 
   gcloud beta compute instances create $VMNAME \
     --zone=$ZONE \
