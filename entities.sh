@@ -84,4 +84,4 @@ then
     --preemptible
 fi
 
-echo "DONE.$EOL"
+echo -en "DONE.$EOL"
