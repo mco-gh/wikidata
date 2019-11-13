@@ -29,5 +29,5 @@ echo persisting log file...
 gsutil cp $LOG gs://$BUCKET/$LOG
 
 echo self-destructing...
-gcloud compute instances delete $(hostname) --zone \
+gcloud -q compute instances delete $(hostname) --zone \
   $(curl -H Metadata-Flavor:Google http://metadata.google.internal/computeMetadata/v1/instance/zone -s | cut -d/ -f4)
