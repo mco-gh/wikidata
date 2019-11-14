@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 export BUCKET=wiki-staging
-export LOG=/tmp/wikiload.log
->$LOG
+export LOGFILE=wikiload.log
+export LOGPATH=/tmp/$LOGFILE
+>$LOGPATH
 
-# redirect stdout/stderr to $LOG.
-exec 1>$LOG
+# redirect stdout/stderr.
+exec 1>$LOGPATH
 exec 2>&1
 
 set -x
@@ -20,13 +21,13 @@ echo uncompressing...
 time lbunzip2 latest-all.json.bz2
 
 echo uploading...
-time gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp latest-all.json gs://$BUCKET/
+time gsutil -q -o GSUtil:parallel_composite_upload_threshold=150M cp latest-all.json gs://$BUCKET/
 
 echo loading...
 time bq load --field_delimiter="tab" --max_bad_records 1 --replace wikidata.latest_raw gs://$BUCKET/latest-all.json item
 
 echo persisting log file...
-gsutil cp $LOG gs://$BUCKET/$LOG
+gsutil cp $LOGPATH gs://$BUCKET/$LOGFILE
 
 echo self-destructing...
 gcloud -q compute instances delete $(hostname) --zone \
