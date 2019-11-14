@@ -1,0 +1,52 @@
+SELECT * FROM `bigquery-public-data.wikipedia.view_gcs` LIMIT 10
+
+SELECT *, _FILE_NAME fn FROM `bigquery-public-data.wikipedia.view_gcs` LIMIT 10
+
+SELECT COUNT(*) rs 
+FROM `bigquery-public-data.wikipedia.view_gcs` 
+WHERE _FILE_NAME = 
+  'gs://wiki-staging/dumps.wikimedia.org/other/pageviews/2015/2015-05/pageviews-20150501-010000.gz'
+
+#standardSQL
+CREATE VIEW `bigquery-public-data.wikipedia.view_parsed`
+AS SELECT
+  PARSE_TIMESTAMP('%Y%m%d-%H%M%S', REGEXP_EXTRACT(_FILE_NAME, '([0-9]+-[0-9]+).gz$')) datehour
+  , REGEXP_EXTRACT(line, '([^ ]*) ') wiki
+  , REGEXP_EXTRACT(line, '[^ ]* (.*) [0-9]+ [0-9]+') title
+  , CAST(REGEXP_EXTRACT(line, ' ([0-9]+) [0-9]+$') AS INT64) views
+  , CAST(REGEXP_EXTRACT(line, ' ([0-9]+)$') AS INT64) zero
+  , _FILE_NAME filename
+  , line
+FROM `bigquery-public-data.wikipedia.view_gcs`WHERE REGEXP_EXTRACT(line, ' ([0-9]+) [0-9]+$') IS NOT NULL # views
+AND REGEXP_EXTRACT(line, ' ([0-9]+)$') = '0'
+
+#standardSQL 
+SELECT * 
+FROM `bigquery-public-data.wikipedia.view_parsed` 
+LIMIT 10
+
+#standardSQL
+SELECT COUNT(*) n_rows, SUM(views) views
+  , ARRAY_AGG(DISTINCT filename) files
+FROM `bigquery-public-data.wikipedia.view_parsed`
+WHERE EXTRACT(YEAR FROM datehour)=2015
+AND EXTRACT(MONTH FROM datehour)=10
+AND EXTRACT(DAY FROM datehour)=21
+AND EXTRACT(HOUR FROM datehour)=7
+
+CREATE TABLE `bigquery-public-data.wikipedia.pageviews_2015`
+ (datehour TIMESTAMP, wiki STRING, title STRING, views INT64)
+ PARTITION BY DATE(datehour) OPTIONS(
+   description = 'Wikipedia pageviews from http://dumps.wikimedia.your.org/other/pageviews/'
+   , require_partition_filter = true
+ )
+
+INSERT INTO `bigquery-public-data.wikipedia.pageviews_2015` (datehour, wiki, title, views)
+WITH hours_already_loaded as (
+  SELECT DISTINCT datehour FROM `bigquery-public-data.wikipedia.pageviews_2015`
+  WHERE datehour > '2000-01-01')
+SELECT datehour, wiki, title, views
+FROM `bigquery-public-data.wikipedia.view_parsed` t1
+WHERE EXTRACT(YEAR FROM datehour)=2015
+AND NOT EXISTS (SELECT * FROM hours_already_loaded t2 WHERE t2.datehour = t1.datehour)
+
