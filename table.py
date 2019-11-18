@@ -1,8 +1,8 @@
 #!/bin/python
 from google.cloud import bigquery
 SCHEMA = [bigquery.SchemaField('line', 'STRING')]
-bq_client = bigquery.Client(project='bigquery-public-data')
-table_ref = bq_client.dataset('wikipedia').table('view_gcs')
+bq_client = bigquery.Client(project='bigquery-public-data-staging')
+table_ref = bq_client.dataset('wikipedia_pipeline').table('view_gcs')
 table = bigquery.Table(table_ref, schema=SCHEMA)
 extconfig = bigquery.ExternalConfig('CSV')
 extconfig.schema = SCHEMA
