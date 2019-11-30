@@ -92,4 +92,6 @@ do
 done
 
 rm src-files.txt dst-files.txt
+
+./update.sh $YYYY $MM $DD
 echo -en "DONE.$EOL"

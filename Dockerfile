@@ -15,6 +15,7 @@
 FROM google/cloud-sdk:alpine
 COPY main.sh .
 COPY pageviews.sh .
+COPY update.sh .
 COPY entities.sh .
 COPY startup.sh .
 COPY key.json .
