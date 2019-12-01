@@ -9,22 +9,23 @@ export LOGPATH=/tmp/$LOGFILE
 exec 1>$LOGPATH
 exec 2>&1
 
-set -x
-
 sudo apt-get update
 sudo apt-get install -y wget lbzip2
 
-echo downloading...
+echo "downloading compressed entity data from cloud storage..."
 time gsutil -q cp gs://$BUCKET/dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2 .
 
-echo uncompressing...
+echo "uncompressing entity data..."
 time lbunzip2 latest-all.json.bz2
 
-echo uploading...
+echo "uploading uncompressed file to cloud storage..."
 time gsutil -q -o GSUtil:parallel_composite_upload_threshold=150M cp latest-all.json gs://$BUCKET/
 
-echo loading...
+echo "loading into bq..."
 time bq load --field_delimiter="tab" --max_bad_records 1 --replace wikidata.latest_raw gs://$BUCKET/latest-all.json item
+
+echo "removing compressed version..."
+time gsutil rm gs://$BUCKET/dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
 
 echo persisting log file...
 gsutil cp $LOGPATH gs://$BUCKET/$LOGFILE
