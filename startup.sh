@@ -15,7 +15,7 @@ sudo apt-get update
 sudo apt-get install -y wget lbzip2
 
 echo downloading...
-time gsutil -q cp gs://$BUCKET/latest-all.json.bz2 .
+time gsutil -q cp gs://$BUCKET/dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2 .
 
 echo uncompressing...
 time lbunzip2 latest-all.json.bz2
