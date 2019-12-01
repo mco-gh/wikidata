@@ -24,13 +24,13 @@ def handle_new_entity_data(data, context):
         None; the output is written to Stackdriver Logging
     """
 
-    url = 'https://wikiload-u236eyd74a-uc.a.run.app/'
+    url = 'https://load-u236eyd74a-uc.a.run.app/'
     event = context.event_type
     bucket = data['bucket']
     object = data['name']
 
     if event == 'google.storage.object.finalize' \
       and bucket == 'wiki-staging' \
-      and object == 'dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2-x':
+      and object == 'dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2':
         resp = requests.get(url)
         print(resp.text)
