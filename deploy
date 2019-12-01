@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
 
-SERVICES="pageviews entities"
+SERVICES="pageviews entities load"
 PROJECT_ID=bigquery-public-data-staging
 IMAGE=wikisync
 

@@ -17,6 +17,7 @@ COPY main.sh .
 COPY pageviews.sh .
 COPY update.sh .
 COPY entities.sh .
+COPY load.sh .
 COPY startup.sh .
 COPY key.json .
 ARG CLOUD_SDK_VERSION=270.0.0
