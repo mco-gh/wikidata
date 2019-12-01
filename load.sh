@@ -38,7 +38,7 @@ else
   gcloud config set project $PROJECT
 fi
 
-echo "creating VM to migrate wikidata...EOL"
+echo -en "creating VM to migrate wikidata...EOL"
 gcloud beta compute instances create $VMNAME \
   --zone=$ZONE \
   --machine-type=m1-ultramem-80 \
