@@ -16,10 +16,6 @@
 
 set -eEuo pipefail
 
-VMNAME=wikiload
-PROJECT=bigquery-public-data-staging
-ZONE=us-central1-c
-SCOPES="https://www.googleapis.com/auth/cloud-platform"
 BUCKET=wiki-staging
 DOMAIN=dumps.wikimedia.org
 SRC_BASE=https://$DOMAIN
@@ -41,10 +37,7 @@ then
 else
   EOL="\r\n"
   echo -en "$HEAD" 
-  gcloud auth activate-service-account --key-file=key.json
-  gcloud config set account 598876566128-compute@developer.gserviceaccount.com
 fi
-gcloud config set project $PROJECT
 
 read SFILE SSIZE \
   <<<$(wget -nv --spider -S -r -A ".gz" -I $SRC_DATA_PATH $SRC_DATA_URL 2>&1 |
@@ -58,24 +51,6 @@ read DFILE DSIZE \
 
 if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]
 then
-  echo "creating VM to migrate $SRC_DATA_URL...$EOL"
-
-  gcloud beta compute instances create $VMNAME \
-    --zone=$ZONE \
-    --machine-type=m1-ultramem-80 \
-    --subnet=default \
-    --network-tier=PREMIUM \
-    --no-restart-on-failure \
-    --maintenance-policy=TERMINATE \
-    --scopes=$SCOPES \
-    --image=debian-10-buster-v20191014 \
-    --image-project=debian-cloud \
-    --boot-disk-size=1000GB \
-    --boot-disk-type=pd-ssd \
-    --boot-disk-device-name=wikiload \
-    --reservation-affinity=any \
-    --metadata-from-file startup-script=startup.sh \
-    --preemptible
+  echo -en "TsvHttpData-1.0$EOL"
+  echo -en "$SRC_DATA_URL$EOL"
 fi
-
-echo -en "DONE.$EOL"
