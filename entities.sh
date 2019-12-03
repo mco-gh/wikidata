@@ -49,8 +49,8 @@ read DFILE DSIZE \
        awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
             $1 != "TOTAL:" {print base($3), $1}')
 
+echo -en "TsvHttpData-1.0$EOL"
 if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]
 then
-  echo -en "TsvHttpData-1.0$EOL"
   echo -en "$SRC_DATA_URL$EOL"
 fi
