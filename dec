@@ -1,0 +1,6 @@
+gcloud kms decrypt --location global \
+  --keyring bigquery-public-data-staging \
+  --key bigquery-public-data-staging \
+  --ciphertext-file key.json.encrypted \
+  --plaintext-file key.json
+
