@@ -18,10 +18,13 @@ set -eEuo pipefail
 
 USAGE="$0 [-d] [all|year|month|day]"
 DEBUG=0
-if [ "$1" == "-d" ]
+if [ -z ${K_SERVICE+x} ]
 then
-  DEBUG=1
-  shift
+  if [ "$1" = "-d" ]
+  then
+    DEBUG=1
+    shift
+  fi
 fi
 WINDOW="${1:-day}"
 PROJECT=bigquery-public-data-staging
@@ -57,6 +60,9 @@ then
 elif [ "$WINDOW" = "day" ]
 then 
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
+else
+  echo $USAGE
+  exit 1
 fi
 
 if [ -z ${K_SERVICE+x} ]
@@ -93,7 +99,7 @@ do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
   echo -en "$SRC_VIEW_URL/$DIR/$FILE$EOL"
 
-  if [ "$DEBUG" == "0" ]
+  if [ "$DEBUG" = "0" ]
   then
     wget -q $SRC_VIEW_URL/$DIR/$FILE
     gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
@@ -103,7 +109,7 @@ done
 
 rm src-files.txt dst-files.txt
 
-if [ "$DEBUG" == "0" ]
+if [ "$DEBUG" = "0" ]
 then
   ./update.sh $YYYY $MM $DD
 fi
