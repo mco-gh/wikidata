@@ -8,6 +8,22 @@ fi
 YEAR=$1
 MONTH=$2
 DAY=$3
+
+QUERY=$(cat <<EOF
+  CREATE TABLE IF NOT EXISTS \`bigquery-public-data.wikipedia.pageviews_$YEAR\`
+    (datehour TIMESTAMP, wiki STRING, title STRING, views INT64)
+    PARTITION BY DATE(datehour)
+    CLUSTER BY wiki, title
+    OPTIONS(
+      description = 'Wikipedia pageviews from http://dumps.wikimedia.your.org/other/pageviews/, partitioned by date, clustered by (wiki, title)',
+      require_partition_filter = true
+    )
+EOF
+)
+
+echo "creating table (if necessary) for $YEAR..."
+bq query -q --use_legacy_sql=false "$QUERY"
+
 QUERY=$(cat <<EOF
   INSERT INTO \`bigquery-public-data.wikipedia.pageviews_$YEAR\`
   WITH already_loaded as ( 

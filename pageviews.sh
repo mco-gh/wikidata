@@ -16,7 +16,13 @@
 
 set -eEuo pipefail
 
-USAGE="$0 [all|year|month|day]"
+USAGE="$0 [-d] [all|year|month|day]"
+DEBUG=0
+if [ "$1" == "-d" ]
+then
+  DEBUG=1
+  shift
+fi
 WINDOW="${1:-day}"
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
@@ -86,12 +92,19 @@ while read FILE SIZE
 do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
   echo -en "$SRC_VIEW_URL/$DIR/$FILE$EOL"
-  wget -q $SRC_VIEW_URL/$DIR/$FILE
-  gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
-  rm $FILE
+
+  if [ "$DEBUG" == "0" ]
+  then
+    wget -q $SRC_VIEW_URL/$DIR/$FILE
+    gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
+    rm $FILE
+  fi
 done
 
 rm src-files.txt dst-files.txt
 
-./update.sh $YYYY $MM $DD
+if [ "$DEBUG" == "0" ]
+then
+  ./update.sh $YYYY $MM $DD
+fi
 echo -en "DONE.$EOL"
