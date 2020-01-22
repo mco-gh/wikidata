@@ -28,7 +28,7 @@ QUERY=$(cat <<EOF
   INSERT INTO \`bigquery-public-data.wikipedia.pageviews_$YEAR\`
   WITH already_loaded as ( 
     SELECT DISTINCT datehour FROM \`bigquery-public-data.wikipedia.pageviews_$YEAR\`
-    WHERE datehour > '$YEAR-$MONTH-$DAY')
+    WHERE datehour >= '$YEAR-$MONTH-$DAY')
   SELECT datehour, wiki, SUBSTR(title, 0, 300) title, views
   FROM \`bigquery-public-data-staging.wikipedia_pipeline.view_parsed\` t1
   WHERE BYTE_LENGTH(wiki)+ BYTE_LENGTH(title) < 1024
