@@ -44,9 +44,9 @@ EOF
 )"
 
 TODAY=$(date '+%s')
-YYYY=$(date --date=@$TODAY +%Y)
-MM=$(date --date=@$TODAY +%m)
-DD=$(date --date=@$TODAY +%d)
+YYYY="${YYYY:-$(date --date=@$TODAY +%Y)}"
+MM="${MM:-$(date --date=@$TODAY +%m)}"
+DD="${DD:-$(date --date=@$TODAY +%d)}"
 
 if [ "$WINDOW" = "all" ]
 then
