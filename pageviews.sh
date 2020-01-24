@@ -28,7 +28,7 @@ then
 fi
 WINDOW="${1:-day}"
 HOUR=$(date +%H)
-if [ "$WINDOW" = "day" -a "$HOUR" = "0" ]
+if [ "$WINDOW" = "day" ] && [ "$HOUR" = "00" ]
 then
   WINDOW=yesterday
 fi
@@ -116,14 +116,14 @@ do
   then
     wget -q $SRC_VIEW_URL/$DIR/$FILE
     gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
-    rm $FILE
+    rm -f $FILE
     WORK_TO_DO=1
   fi
 done
 
-rm src-files.txt dst-files.txt
+rm -f src-files.txt dst-files.txt
 
-if [ "$DEBUG" = "0" -a "$WORK_TO_DO" = "1" ]
+if [ "$DEBUG" = "0" ] && [ "$WORK_TO_DO" = "1" ]
 then
   ./update.sh $YYYY $MM $DD
 fi
