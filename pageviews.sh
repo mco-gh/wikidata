@@ -27,6 +27,11 @@ then
   fi
 fi
 WINDOW="${1:-day}"
+HOUR=$(date +%H)
+if [ "$WINDOW" = "day" -a "$HOUR" = "0" ]
+then
+  WINDOW=yesterday
+fi
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
 DOMAIN=dumps.wikimedia.org
@@ -99,6 +104,7 @@ then
   sort >dst-files.txt
 fi
 
+WORK_TO_DO=0
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
 comm -23 src-files.txt dst-files.txt |
 while read FILE SIZE
@@ -111,12 +117,13 @@ do
     wget -q $SRC_VIEW_URL/$DIR/$FILE
     gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
     rm $FILE
+    WORK_TO_DO=1
   fi
 done
 
 rm src-files.txt dst-files.txt
 
-if [ "$DEBUG" = "0" ]
+if [ "$DEBUG" = "0" -a "$WORK_TO_DO" = "1" ]
 then
   ./update.sh $YYYY $MM $DD
 fi
