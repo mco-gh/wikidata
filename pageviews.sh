@@ -116,12 +116,12 @@ do
   then
     wget -q $SRC_VIEW_URL/$DIR/$FILE
     gsutil cp $FILE $DST_VIEW_URL/$DIR/$FILE
-    rm -f $FILE
+    #rm -f $FILE
     WORK_TO_DO=1
   fi
 done
 
-rm -f src-files.txt dst-files.txt
+#rm -f src-files.txt dst-files.txt
 
 if [ "$DEBUG" = "0" ] && [ "$WORK_TO_DO" = "1" ]
 then
