@@ -16,7 +16,7 @@
 
 set -eEuo pipefail
 
-USAGE="$0 [-d] [all|year|month|day]"
+USAGE="$0 [-d] [all|year|month|day|yesterday]"
 DEBUG=0
 if [ -z ${K_SERVICE+x} ]
 then
@@ -59,6 +59,13 @@ then
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM*.gz
 elif [ "$WINDOW" = "day" ]
 then 
+  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
+elif [ "$WINDOW" = "yesterday" ]
+then 
+  YESTERDAY=$(($TODAY-86400))
+  YYYY="${YYYY:-$(date --date=@$YESTERDAY +%Y)}"
+  MM="${MM:-$(date --date=@$YESTERDAY +%m)}"
+  DD="${DD:-$(date --date=@$YESTERDAY +%d)}"
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
 else
   echo $USAGE
