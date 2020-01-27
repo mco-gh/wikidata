@@ -68,9 +68,9 @@ then
 elif [ "$WINDOW" = "yesterday" ]
 then 
   YESTERDAY=$(($TODAY-86400))
-  YYYY="${YYYY:-$(date --date=@$YESTERDAY +%Y)}"
-  MM="${MM:-$(date --date=@$YESTERDAY +%m)}"
-  DD="${DD:-$(date --date=@$YESTERDAY +%d)}"
+  YYYY="$(date --date=@$YESTERDAY +%Y)"
+  MM="$(date --date=@$YESTERDAY +%m)"
+  DD="$(date --date=@$YESTERDAY +%d)"
   S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
 else
   echo $USAGE
@@ -104,9 +104,9 @@ then
   sort >dst-files.txt
 fi
 
-export WORK_TO_DO=0
+WORK_TO_DO=0
 # One-sided diff - every file that doesn't exist or match size in cloud storage.
-comm -23 src-files.txt dst-files.txt |
+comm -23 src-files.txt dst-files.txt >diffs.txt
 while read FILE SIZE
 do
   DIR=`echo $FILE | awk '{y=substr($1,11,4);m=substr($1,15,2); printf("%s/%s-%s",y,y,m)}'`
@@ -119,9 +119,9 @@ do
     rm -f $FILE
     WORK_TO_DO=1
   fi
-done
+done <diffs.txt
 
-rm -f src-files.txt dst-files.txt
+rm -f src-files.txt dst-files.txt diffs.txt
 
 if [ "$DEBUG" = "0" ] && [ "$WORK_TO_DO" = "1" ]
 then
