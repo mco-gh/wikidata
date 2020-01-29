@@ -33,7 +33,6 @@ then
 else
   EOL="\r\n"
   echo -en "$HEAD" 
-  gcloud auth activate-service-account --key-file=key.json
   gcloud config set account 598876566128-compute@developer.gserviceaccount.com
   gcloud config set project $PROJECT
 fi
