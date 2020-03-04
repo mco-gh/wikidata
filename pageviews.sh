@@ -53,29 +53,25 @@ YYYY="${YYYY:-$(date --date=@$TODAY +%Y)}"
 MM="${MM:-$(date --date=@$TODAY +%m)}"
 DD="${DD:-$(date --date=@$TODAY +%d)}"
 
-if [ "$WINDOW" = "all" ]
-then
-  S1=/; S2=*/*/ S3=pageviews-*.gz
-elif [ "$WINDOW" = "year" ]
-then
-  S1=/$YYYY/; S2=*/; S3=pageviews-$YYYY*.gz
-elif [ "$WINDOW" = "month" ]
-then 
-  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM*.gz
-elif [ "$WINDOW" = "day" ]
-then 
-  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
-elif [ "$WINDOW" = "yesterday" ]
-then 
-  YESTERDAY=$(($TODAY-86400))
-  YYYY="$(date --date=@$YESTERDAY +%Y)"
-  MM="$(date --date=@$YESTERDAY +%m)"
-  DD="$(date --date=@$YESTERDAY +%d)"
-  S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz
-else
-  echo $USAGE
-  exit 1
-fi
+case "$WINDOW" in
+  all)
+    S1=/; S2=*/*/ S3=pageviews-*.gz;;
+  year)
+    S1=/$YYYY/; S2=*/; S3=pageviews-$YYYY*.gz;;
+  month)
+    S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM*.gz;;
+  day)
+    S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz;;
+  yesterday)
+    YESTERDAY=$(($TODAY-86400))
+    YYYY="$(date --date=@$YESTERDAY +%Y)"
+    MM="$(date --date=@$YESTERDAY +%m)"
+    DD="$(date --date=@$YESTERDAY +%d)"
+    S1=/$YYYY/$YYYY-$MM/; S2=; S3=pageviews-$YYYY$MM$DD-*.gz;;
+  *)
+    echo $USAGE
+    exit 1;;
+esac
 
 if [ -z ${K_SERVICE+x} ]
 then
