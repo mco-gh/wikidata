@@ -9,7 +9,7 @@ echo "building docker image..."
 gcloud builds submit \
   --project "${PROJECT_ID}" \
   --tag "gcr.io/$PROJECT_ID/$IMAGE" \
-  .
+  src
 
 echo "deploying cloud run services..."
 for SERVICE in $SERVICES
