@@ -16,6 +16,7 @@
 
 set -eEuo pipefail
 
+# Independent variables
 BUCKET=wiki-staging
 DOMAIN=dumps.wikimedia.org
 SRC_BASE=https://$DOMAIN
@@ -39,17 +40,20 @@ else
   echo -en "$HEAD" 
 fi
 
+# Get name and size of latest wikidata file on website.
 read SFILE SSIZE \
   <<<$(wget -nv --spider -S -r -A ".gz" -I $SRC_DATA_PATH $SRC_DATA_URL 2>&1 |
        awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
             $1 == "Content-Length:" {len=$2} $3 == "URL:" {print base($4), len}')
 
+# Get name and size of latest wikidata file copy we have in Cloud Storage.
 read DFILE DSIZE \
   <<<$(gsutil ls -l -r $DST_DATA_URL |
        awk 'function base(file, a, n) {n = split(file,a,"/"); return a[n]} \
             $1 != "TOTAL:" {print base($3), $1}')
 
 echo -en "TsvHttpData-1.0$EOL"
+# If new file available, display it for further processing.
 if [ "$SFILE" != "$DFILE" -o "$SSIZE" != "$DSIZE" ]
 then
   echo -en "$SRC_DATA_URL$EOL"

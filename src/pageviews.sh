@@ -99,8 +99,9 @@ then
   sort >dst-files.txt
 fi
 
+# One-sided diff - find every web file that either doesn't exist or
+# doesn't match size of corresponding object in cloud storage.
 WORK_TO_DO=0
-# One-sided diff - every file that doesn't exist or match size in cloud storage.
 comm -23 src-files.txt dst-files.txt >diffs.txt
 while read FILE SIZE
 do
@@ -118,6 +119,7 @@ done <diffs.txt
 
 rm -f src-files.txt dst-files.txt diffs.txt
 
+# If we found any missing or changed files, update our collection.
 if [ "$DEBUG" = "0" ] && [ "$WORK_TO_DO" = "1" ]
 then
   ./update.sh $YYYY $MM $DD
