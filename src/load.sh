@@ -52,7 +52,6 @@ gcloud beta compute instances create $VMNAME \
   --boot-disk-type=pd-ssd \
   --boot-disk-device-name=wikiload \
   --reservation-affinity=any \
-  --metadata-from-file startup-script=startup.sh \
-  --preemptible
+  --metadata-from-file startup-script=startup.sh
 
 echo -en "DONE.$EOL"
