@@ -48,7 +48,7 @@ gcloud beta compute instances create $VMNAME \
   --scopes=$SCOPES \
   --image=debian-10-buster-v20191014 \
   --image-project=debian-cloud \
-  --boot-disk-size=1000GB \
+  --boot-disk-size=2000GB \
   --boot-disk-type=pd-ssd \
   --boot-disk-device-name=wikiload \
   --reservation-affinity=any \
