@@ -18,7 +18,7 @@ set -eEuo pipefail
 
 VMNAME=wikiload
 PROJECT=bigquery-public-data-staging
-ZONE=us-central1-c
+ZONE=us-central1-b
 SCOPES="https://www.googleapis.com/auth/cloud-platform"
 
 HEAD="$(cat <<EOF
@@ -46,7 +46,7 @@ gcloud beta compute instances create $VMNAME \
   --no-restart-on-failure \
   --maintenance-policy=TERMINATE \
   --scopes=$SCOPES \
-  --image=debian-10-buster-v20191014 \
+  --image=projects/debian-cloud/global/images/debian-10-buster-v20191115 \
   --image-project=debian-cloud \
   --boot-disk-size=2000GB \
   --boot-disk-type=pd-ssd \
