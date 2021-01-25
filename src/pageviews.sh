@@ -20,18 +20,17 @@ USAGE="$0 [-d] [all|year|month|day|yesterday]"
 DEBUG=0
 if [ -z ${K_SERVICE+x} ]
 then
-  if [ "$1" = "-d" ]
+  if [ $# -gt 0 ]
   then
-    DEBUG=1
-    shift
+    if [ "$1" = "-d" ]
+    then
+      DEBUG=1
+      shift
+    fi
   fi
 fi
 WINDOW="${1:-day}"
 HOUR=$(date +%H)
-if [ "$WINDOW" = "day" ] && [ "$HOUR" = "00" ]
-then
-  WINDOW=yesterday
-fi
 PROJECT=bigquery-public-data-staging
 BUCKET=wiki-staging
 DOMAIN=dumps.wikimedia.org
