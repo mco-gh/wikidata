@@ -22,12 +22,13 @@ IMAGE=wikisync
 echo "deploying cloud run services..."
 for SERVICE in $SERVICES
 do
-  gcloud beta run deploy "$SERVICE" \
+  gcloud run deploy "$SERVICE" \
     --image "gcr.io/$PROJECT_ID/$IMAGE" \
     --platform "managed" \
     --region "us-central1" \
     --project "${PROJECT_ID}" \
     --concurrency 1 \
+    --max-instances 1 \
     --memory 2G \
     --allow-unauthenticated
 done
