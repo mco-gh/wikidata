@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -eEuo pipefail
+set -eEuox pipefail
 
 USAGE="$0 [-d] [all|year|month|day|yesterday]"
 DEBUG=0
