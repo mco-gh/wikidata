@@ -15,7 +15,7 @@
 
 set -eEuo pipefail
 
-SERVICES="pageviews sweep entities load"
+SERVICES="pageviews sweep entities articles load"
 PROJECT_ID=bigquery-public-data-staging
 IMAGE=wikisync
 

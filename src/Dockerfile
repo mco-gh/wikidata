@@ -18,6 +18,7 @@ COPY pageviews.sh .
 COPY sweep.sh .
 COPY update.sh .
 COPY entities.sh .
+COPY articles.sh .
 COPY load.sh .
 COPY startup.sh .
 #ARG CLOUD_SDK_VERSION=270.0.0

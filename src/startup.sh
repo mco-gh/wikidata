@@ -26,6 +26,9 @@ exec 2>&1
 sudo apt-get update
 sudo apt-get install -y wget lbzip2
 
+#
+# process entities file
+#
 echo "downloading compressed entity data from cloud storage..."
 time gsutil -q cp gs://$BUCKET/dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2 .
 
