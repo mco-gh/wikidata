@@ -210,6 +210,18 @@ time bq query -q --use_legacy_sql=false "$QUERY"
 echo "removing compressed version..."
 time gsutil rm gs://$BUCKET/dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
 
+#
+# process articles file
+#
+echo "downloading compressed articles data from cloud storage..."
+time gsutil -q cp gs://$BUCKET/dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2 .
+
+echo "uncompressing entity data..."
+time lbunzip2 enwiki-latest-pages-articles.xml.bz2 .
+
+echo "uploading uncompressed file to cloud storage..."
+time gsutil -q -o GSUtil:parallel_composite_upload_threshold=150M cp enwiki-latest-pages-articles.xml gs://$BUCKET/
+
 echo persisting log file...
 gsutil cp $LOGPATH gs://$BUCKET/$LOGFILE
 
