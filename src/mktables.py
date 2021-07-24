@@ -1,3 +1,5 @@
+from google.cloud import bigquery
+
 tables = {
     "bands":          (5741069, 215380),
     "writers":        (36180, 482980),
@@ -33,8 +35,10 @@ AS
   ) b
 ON a.title=b.en_wiki
 AND a.wiki='en'
+AND DATE(a.datehour) BETWEEN '2015-01-01' AND '2021-12-31'
 GROUP BY datehour, title"""
 
+client = bigquery.Client()
 for (category, ids) in tables.items():
     first = True
     where = ""
@@ -44,4 +48,6 @@ for (category, ids) in tables.items():
         where = where + f"numeric_id={id}"
         first = False
     query = bld_query(category, where)
-    run(query)
+    print(f"building {category} table")
+    query_job = client.query(query)
+    print(category, query_job.job_id)
