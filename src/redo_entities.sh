@@ -48,6 +48,7 @@ QUERY=$(cat <<EOF
     ,date_of_birth ARRAY<STRUCT<time STRING>>
     ,date_of_death ARRAY<STRUCT<time STRING>>
     ,place_of_birth ARRAY<STRUCT<numeric_id INT64>>
+    ,worked_at ARRAY<STRUCT<numeric_id INT64>>
     ,country_of_citizenship ARRAY<STRUCT<numeric_id INT64>>
     ,country ARRAY<STRUCT<numeric_id INT64>>
     ,educated_at ARRAY<STRUCT<numeric_id INT64>>
@@ -147,6 +148,7 @@ QUERY=$(cat <<EOF
       date_of_birth: snaks(obj, 'P569', 'time'),
       date_of_death: snaks(obj, 'P569', 'time'),
       place_of_birth: snaksNum(obj, 'P19'),
+      worked_at: snaksNum(obj, 'P108'),
       country_of_citizenship: snaksNum(obj, 'P27'),
       country: snaksNum(obj, 'P17'),
       educated_at: snaksNum(obj, 'P69'),
